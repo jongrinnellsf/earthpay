@@ -74,9 +74,9 @@ yarn start
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+## Unafiliated, personal side project
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is a personal side project, unaffiliated with any specific company, domain, or licenses. It is open, and freely available. 
 
 ## Acknowledgments
 
