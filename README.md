@@ -72,6 +72,24 @@ yarn start
 - **EarthToken**: A customizable ERC-20 token deployed by each user with their chosen name and symbol
 - **EarthPass NFT**: An ERC-721 NFT that serves as verification for users
 
+## For Developers
+
+### Important Note on Deployment
+
+When pushing to GitHub or sharing this code, make sure to reset the `deployedContracts.ts` file by removing any personal token deployments. The file should only contain the Counter contract:
+
+```typescript
+const deployedContracts = {
+  84532: {
+    Counter: {
+      // Counter contract details
+    }
+  },
+};
+```
+
+This ensures that each user who clones the repository will be prompted to deploy their own token contract rather than using someone else's existing deployment.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
