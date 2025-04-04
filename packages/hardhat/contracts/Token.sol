@@ -11,7 +11,8 @@ contract EarthToken is ERC20 {
     // Maximum tokens that can be minted at once
     uint256 public constant MAX_MINT_AMOUNT = 100 * 10**18; // 100 tokens with 18 decimals
 
-    constructor() ERC20("Earthcoins", "EARTH") {}
+    // Custom token name and symbol set by the deployer
+    constructor(string memory tokenName, string memory tokenSymbol) ERC20(tokenName, tokenSymbol) {}
 
     /**
      * @notice Mint tokens to the caller

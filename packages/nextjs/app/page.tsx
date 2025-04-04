@@ -12,6 +12,9 @@ import { parseEther } from "viem";
 import { notification } from "~~/utils/scaffold-alchemy";
 import "~~/types/contractTypes";
 
+// Add type assertion for contract name to fix errors with dynamically deployed contracts
+type DynamicContractName = "EarthToken" | "Counter" | "ExternalEarthPassNFT";
+
 // Define the external contract address
 const EXTERNAL_EARTHPASS_NFT_ADDRESS = "0x94ff63e2967e23ca39af55d57bf2d6654f71ed86";
 
@@ -182,14 +185,14 @@ const Home: NextPage = () => {
 
   // Check if EarthToken is deployed
   const { data: tokenContractData } = useDeployedContractInfo({
-    contractName: "EarthToken",
+    contractName: "EarthToken" as DynamicContractName,
   });
 
   // Read token balance
   const { data: tokenBalance, isLoading: isLoadingTokenBalance, refetch: refetchTokenBalance } = useScaffoldReadContract({
-    contractName: "EarthToken",
-    functionName: "balanceOf",
-    args: [address!] as const,
+    contractName: "EarthToken" as DynamicContractName,
+    functionName: "balanceOf" as any,
+    args: [address!] as any,
     query: {
       enabled: Boolean(address) && Boolean(tokenContractData?.address),
     },
@@ -197,8 +200,8 @@ const Home: NextPage = () => {
 
   // Read token name
   const { data: tokenName } = useScaffoldReadContract({
-    contractName: "EarthToken",
-    functionName: "name",
+    contractName: "EarthToken" as DynamicContractName,
+    functionName: "name" as any,
     query: {
       enabled: Boolean(tokenContractData?.address),
     },
@@ -206,8 +209,8 @@ const Home: NextPage = () => {
 
   // Read token symbol
   const { data: tokenSymbol } = useScaffoldReadContract({
-    contractName: "EarthToken",
-    functionName: "symbol",
+    contractName: "EarthToken" as DynamicContractName,
+    functionName: "symbol" as any,
     query: {
       enabled: Boolean(tokenContractData?.address),
     },
@@ -229,19 +232,19 @@ const Home: NextPage = () => {
 
   // Write contract functions
   const { writeContractAsync: mintTokens, isPending: isMintPending } = useScaffoldWriteContract({
-    contractName: "EarthToken",
+    contractName: "EarthToken" as DynamicContractName,
   });
   
   // Write contract functions for sending tokens
   const { writeContractAsync: sendTokens, isPending: isSendPending } = useScaffoldWriteContract({
-    contractName: "EarthToken",
+    contractName: "EarthToken" as DynamicContractName,
   });
 
-  // Mint tokens function (renamed for clarity)
+  // Handle mint tokens function (renamed for clarity)
   const handleMintTokens = async () => {
     if (!address || !tokenContractData?.address) {
       notification.error(
-        <span>The EarthToken contract has not been deployed yet. Please run 'yarn deploy' first.</span>
+        <span>The EarthToken contract has not been deployed yet. Please run 'yarn deploy' first to create your custom token.</span>
       );
       return;
     }
@@ -249,8 +252,8 @@ const Home: NextPage = () => {
     setIsMinting(true);
     try {
       await mintTokens({
-        functionName: "mint",
-        args: [parseEther("10")],
+        functionName: "mint" as any,
+        args: [parseEther("10")] as any,
       });
       
       // Add minting to recent activity
@@ -301,7 +304,7 @@ const Home: NextPage = () => {
     // Check if EarthToken contract is deployed
     if (!tokenContractData?.address) {
       notification.error(
-        <span>The token contract has not been deployed yet. Please run 'yarn deploy' first.</span>
+        <span>The token contract has not been deployed yet. Please run 'yarn deploy' to create your custom token.</span>
       );
       return;
     }
@@ -312,8 +315,8 @@ const Home: NextPage = () => {
       
       // Call the contract's transfer function
       await sendTokens({
-        functionName: "transferToEarthPassHolder",
-        args: [selectedRecipient.address, tokenAmount],
+        functionName: "transferToEarthPassHolder" as any,
+        args: [selectedRecipient.address, tokenAmount] as any,
       });
       
       // Add to recent activity
@@ -390,7 +393,7 @@ const Home: NextPage = () => {
                         <span className="text-[#363FF9]">Simple</span>
                       </h2>
                       <p className="text-xl text-gray-700 mx-auto max-w-lg">
-                        A demo app.Send money anywhere in the world for free to verified EarthPass members.
+                        A demo app. Send money anywhere in the world for free to verified EarthPass members.
                       </p>
                     </div>
                   </div>
@@ -495,10 +498,20 @@ const Home: NextPage = () => {
                             </div>
                             
                             {!tokenContractData?.address && (
-                              <div className="mt-4 text-center text-sm text-indigo-600 bg-indigo-50 p-2 rounded-lg">
-                                Token contract not deployed. Run 'yarn deploy' to enable token minting.
-                    </div>
-                  )}
+                              <div className="mt-4 text-center text-sm text-red-600 bg-red-50 p-4 rounded-lg border border-red-200">
+                                <div className="flex items-center justify-center mb-2">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                  </svg>
+                                  <strong>Custom Token Not Detected</strong>
+                                </div>
+                                <p className="mb-2">You need to deploy your own ERC-20 token contract to enable token functionality. Each user creates their own personalized token!</p>
+                                <div className="bg-white p-3 rounded border border-gray-200 font-mono text-center my-3">
+                                  yarn deploy
+                                </div>
+                                <p>Run this command in your terminal to deploy the contract. You'll be prompted to choose a name and symbol for your token.</p>
+                              </div>
+                            )}
                           </div>
                           
                           {/* Recent Activity Section */}

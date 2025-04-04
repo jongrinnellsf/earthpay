@@ -9,6 +9,7 @@ EarthPay is a simple, secure payment application that allows verified users with
 - **Modern UI**: Clean, intuitive interface with visual representations of transactions
 - **Transaction History**: View your recent payment activity
 - **Simple Verification**: Get verified easily with an EarthPass NFT
+- **Custom Token Creation**: Each user deploys their own ERC-20 token with personalized name and symbol
 
 ## Technology Stack
 
@@ -42,13 +43,13 @@ cd earthpay
 yarn install
 ```
 
-3. Deploy the smart contracts to Base Sepolia testnet
+3. Deploy your custom ERC-20 token contract to Base Sepolia testnet
 
 ```bash
 yarn deploy
 ```
 
-This deploys the EarthToken contract which powers the payment functionality.
+You'll be prompted to enter a name and symbol for your token. This creates your personalized token that you can mint and send to other users.
 
 4. Start the application
 
@@ -62,12 +63,13 @@ yarn start
 
 1. **Connect Wallet**: Use the Connect button in the upper right corner
 2. **Get Verified**: Mint an EarthPass NFT to access payment features
-3. **Deposit Funds**: Add tokens to your account
-4. **Send Money**: Select a recipient (another EarthPass holder) and amount to send
+3. **Deploy Your Token**: Run `yarn deploy` and create your custom token with name and symbol
+4. **Deposit Funds**: Add tokens to your account
+5. **Send Money**: Select a recipient (another EarthPass holder) and amount to send
 
 ## Smart Contracts
 
-- **EarthToken**: An ERC-20 token that can only be transferred between EarthPass holders
+- **EarthToken**: A customizable ERC-20 token deployed by each user with their chosen name and symbol
 - **EarthPass NFT**: An ERC-721 NFT that serves as verification for users
 
 ## Contributing

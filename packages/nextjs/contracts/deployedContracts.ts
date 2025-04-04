@@ -57,12 +57,29 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     EarthToken: {
-      address: "0xbffa086eb86ee37d3069d046b784d82145e10a78",
+      address: "0xab670b2cb2b390d2b7d7a0871286c6b24b345beb",
       abi: [
         {
           type: "constructor",
           stateMutability: "nonpayable",
-          inputs: [],
+          inputs: [
+            {
+              name: "tokenName",
+              type: "string",
+              baseType: "string",
+              components: null,
+              arrayLength: null,
+              arrayChildren: null,
+            },
+            {
+              name: "tokenSymbol",
+              type: "string",
+              baseType: "string",
+              components: null,
+              arrayLength: null,
+              arrayChildren: null,
+            },
+          ],
         },
         {
           type: "error",
