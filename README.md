@@ -76,16 +76,12 @@ yarn start
 
 ### Important Note on Deployment
 
-When pushing to GitHub or sharing this code, make sure to reset the `deployedContracts.ts` file by removing any personal token deployments. The file should only contain the Counter contract:
+When pushing to GitHub or sharing this code, make sure to keep the `deployedContracts.ts` file empty:
 
 ```typescript
-const deployedContracts = {
-  84532: {
-    Counter: {
-      // Counter contract details
-    }
-  },
-};
+const deployedContracts = {} as const;
+
+export default deployedContracts satisfies GenericContractsDeclaration;
 ```
 
 This ensures that each user who clones the repository will be prompted to deploy their own token contract rather than using someone else's existing deployment.
