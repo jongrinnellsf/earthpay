@@ -11,6 +11,7 @@ import { Globe } from "~~/components/ui/globe";
 import { parseEther } from "viem";
 import { notification } from "~~/utils/scaffold-alchemy";
 import "~~/types/contractTypes";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 // Add type assertion for contract name to fix errors with dynamically deployed contracts
 type DynamicContractName = "EarthToken" | "Counter" | "ExternalEarthPassNFT";
@@ -458,7 +459,17 @@ const Home: NextPage = () => {
                         <>
                           {/* Balance Card */}
                           <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-                            <p className="text-xl text-gray-600 mb-1">Your balance</p>
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-xl text-gray-600">Your balance</p>
+                              <button 
+                                onClick={handleRefreshTokenBalance}
+                                className={`p-1.5 rounded-full transition-all ${isLoadingTokenBalance ? 'bg-indigo-50' : 'hover:bg-indigo-50'}`}
+                                disabled={isLoadingTokenBalance}
+                                title="Refresh balance"
+                              >
+                                <ArrowPathIcon className={`h-5 w-5 text-indigo-600 ${isLoadingTokenBalance ? 'animate-spin' : ''}`} />
+                              </button>
+                            </div>
                             <p className="text-6xl font-semibold text-gray-800 mb-8">${getTotalBalance()}</p>
                             
                             {/* Action Buttons */}
@@ -734,9 +745,7 @@ const Home: NextPage = () => {
                           {/* Secure Token Transfer Note */}
                           <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
                             <p className="text-indigo-700 text-sm flex items-start">
-                              <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
+                              <span className="text-xl mr-2 flex-shrink-0">💸</span>
                               <span>
                                 You're sending secure ERC-20 tokens that can only be transferred between verified members of your community.
                               </span>

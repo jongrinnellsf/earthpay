@@ -79,6 +79,8 @@ yarn start
 When pushing to GitHub or sharing this code, make sure to keep the `deployedContracts.ts` file empty:
 
 ```typescript
+import { GenericContractsDeclaration } from "~~/utils/scaffold-alchemy/contract";
+
 const deployedContracts = {} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
