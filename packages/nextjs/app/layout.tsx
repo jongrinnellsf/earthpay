@@ -15,7 +15,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   const initialState = cookieToInitialState(config, headers().get("cookie") ?? undefined);
 
   return (
-    <html suppressHydrationWarning>
+    <html suppressHydrationWarning className="font-sans tracking-tighter">
       <body>
         <Providers initialState={initialState}>{children}</Providers>
       </body>

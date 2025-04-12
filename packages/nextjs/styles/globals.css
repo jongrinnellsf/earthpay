@@ -1,6 +1,7 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+@import "./font.css";
 
 :root,
 [data-theme] {
@@ -9,6 +10,7 @@
 
 body {
   min-height: 100vh;
+  font-family: "Satoshi-Variable", sans-serif;
 }
 
 h1,

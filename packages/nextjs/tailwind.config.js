@@ -79,6 +79,12 @@ export default withAccountKitUi({
   },
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Satoshi-Variable", "sans-serif"],
+      },
+      letterSpacing: {
+        tighter: "-0.03em",
+      },
       boxShadow: {
         center: "0 0 12px -2px rgb(0 0 0 / 0.05)",
       },

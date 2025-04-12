@@ -498,27 +498,33 @@ const Home: NextPage = () => {
                             </div>
                             
                             {!tokenContractData?.address && (
-                              <div className="mt-4 text-center text-sm text-red-600 bg-red-50 p-4 rounded-lg border border-red-200">
-                                <div className="flex items-center justify-center mb-2">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                  </svg>
-                                  <strong>Custom Token Not Detected</strong>
+                              <div className="mt-4 text-center text-sm text-indigo-800 bg-indigo-50 p-6 rounded-lg border border-indigo-200">
+                                <div className="flex items-center justify-center mb-3">
+                                  <span className="text-xl text-indigo-600 mr-2">✨</span>
+                                  <strong className="text-lg">Setup Your Personal Token</strong>
                                 </div>
-                                <p className="mb-2">You need to deploy your own ERC-20 token contract to enable token functionality. Each user creates their own personalized token!</p>
-                                <div className="bg-white p-3 rounded border border-gray-200 font-mono text-center my-3">
+                                <p className="mb-3">To get started, you'll need to create your own custom token. It only takes a minute and lets you send money to anyone in your community!</p>
+                                <div 
+                                  className="bg-white p-3 rounded-xl border border-indigo-100 font-mono text-center my-4 shadow-sm cursor-pointer hover:bg-indigo-50 transition-colors flex items-center justify-center"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText('yarn deploy');
+                                    // You could add a toast notification here
+                                  }}
+                                >
                                   yarn deploy
                                 </div>
-                                <p>Run this command in your terminal to deploy the contract. You'll be prompted to choose a name and symbol for your token.</p>
+                                <p className="text-indigo-700">Simply run this command in your terminal and follow the prompts to name your token.</p>
                               </div>
                             )}
                           </div>
                           
                           {/* Recent Activity Section */}
+                          {/* Commented out for now */}
+                          {/*
                           <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
                             <h2 className="text-2xl text-gray-700 mb-6">Recent activity</h2>
                             
-                            {/* Token Information  */}
+                            
                             {hasNFT && tokenContractData?.address && (
                               <div className="bg-white p-4 rounded-xl mb-6 border border-gray-200 shadow-sm">
                                 <div className="flex justify-between items-center mb-3">
@@ -606,6 +612,7 @@ const Home: NextPage = () => {
                               )}
                             </div>
                           </div>
+                          */}
                         </>
                       )}
                     </div>
@@ -630,7 +637,7 @@ const Home: NextPage = () => {
                         </>
                       ) : Number(getTokenBalance()) <= 0 ? (
                         <div className="py-8 text-center">
-                          <div className="text-indigo-600 text-3xl mb-4">⚠️</div>
+                          <div className="text-indigo-600 text-3xl mb-4">💸</div>
                           <h3 className="text-xl font-medium mb-4">Insufficient Balance</h3>
                           <p className="text-gray-600 mb-6">
                             You need to deposit funds before you can send tokens to others.
@@ -778,17 +785,23 @@ const Home: NextPage = () => {
                           />
                         </>
                       ) : !tokenContractData?.address ? (
-                        <div className="py-8">
-                          <div className="text-indigo-600 text-3xl mb-4">⚠️</div>
-                          <h3 className="text-xl font-medium mb-4">Contract Not Deployed</h3>
-                          <p className="text-gray-600 mb-4">
-                            The token contract has not been deployed to this network yet.
+                        <div className="py-8 text-center">
+                          <div className="text-indigo-600 text-4xl mb-4">✨</div>
+                          <h3 className="text-xl font-medium mb-4 text-indigo-900">Create Your Token</h3>
+                          <p className="text-gray-700 mb-5">
+                            You're almost there! Just set up your custom token to start making deposits.
                           </p>
-                          <div className="bg-gray-100 p-4 rounded-lg text-left text-sm font-mono mb-4">
+                          <div 
+                            className="bg-indigo-50 p-4 rounded-xl text-center text-sm font-mono mb-5 border border-indigo-100 mx-auto max-w-xs shadow-sm cursor-pointer hover:bg-indigo-100 transition-colors flex items-center justify-center"
+                            onClick={() => {
+                              navigator.clipboard.writeText('yarn deploy');
+                              // You could add a toast notification here
+                            }}
+                          >
                             yarn deploy
                           </div>
-                          <p className="text-gray-600">
-                            Run the command above in your terminal to deploy the contract and enable deposits.
+                          <p className="text-indigo-700 text-sm">
+                            Run this command to create your personal token. It only takes a minute!
                           </p>
                         </div>
                       ) : (
