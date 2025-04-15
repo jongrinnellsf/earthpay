@@ -275,7 +275,7 @@ const Home: NextPage = () => {
     } catch (error) {
       console.error("Error minting tokens:", error);
       notification.error(
-        <span>Failed to deposit funds. Please check if you own an EarthPass NFT.</span>
+        <span>Failed to deposit funds. Please check if you own an NFT.</span>
       );
     } finally {
       setIsMinting(false);
@@ -347,7 +347,7 @@ const Home: NextPage = () => {
     } catch (error) {
       console.error("Error sending tokens:", error);
       notification.error(
-        <span>Failed to send tokens. Make sure the recipient has an EarthPass NFT.</span>
+        <span>Failed to send tokens. Make sure the recipient has an NFT.</span>
       );
       throw error; // Rethrow to be caught by the modal
     }
@@ -368,7 +368,7 @@ const Home: NextPage = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
-              <span className="text-indigo-600 font-medium text-sm">Verified EarthPass Member</span>
+              <span className="text-indigo-600 font-medium text-sm">Verified Community Member</span>
             </div>
           )}
         
@@ -394,7 +394,7 @@ const Home: NextPage = () => {
                         <span className="text-[#363FF9]">Simple</span>
                       </h2>
                       <p className="text-xl text-gray-700 mx-auto max-w-lg">
-                        A demo app. Send money anywhere in the world for free to verified EarthPass members.
+                        A demo app. Send money anywhere in the world for free to verified community members.
                       </p>
                     </div>
                   </div>
@@ -446,7 +446,7 @@ const Home: NextPage = () => {
                         <div className="bg-white p-8 rounded-2xl shadow-md border border-gray-100 text-center">
                           <h2 className="text-2xl font-bold mb-4 text-gray-800">Get Started</h2>
                           <p className="mb-6 text-gray-600">
-                            You need to get verified with an EarthPass NFT to access our deposit and payment features.
+                            Glad you're here! To join the community, you'll need to get verified with an NFT. Click the button below to get started.
                           </p>
                           <EarthPassNFT 
                             address={address}
@@ -637,7 +637,7 @@ const Home: NextPage = () => {
                       {!hasNFT ? (
                         <>
                           <p className="mb-6 text-gray-600">
-                            You need to get verified with an EarthPass NFT first.
+                            You need to get verified with an NFT first.
                           </p>
                           <EarthPassNFT 
                           address={address}
@@ -717,7 +717,7 @@ const Home: NextPage = () => {
                             </select>
                             {verifiedRecipients.length === 0 && !isLoadingRecipients && (
                               <p className="text-xs text-indigo-600 mt-1">
-                                No other verified EarthPass holders found. Invite friends to join!
+                                No other verified NFT holders found. Invite friends to join!
                               </p>
                       )}
                     </div>
@@ -784,7 +784,7 @@ const Home: NextPage = () => {
                       {!hasNFT ? (
                         <>
                           <p className="mb-6 text-gray-600">
-                            You need to get verified with an EarthPass NFT first.
+                            You need to get verified with an NFT first.
                           </p>
                         <EarthPassNFT 
                           address={address}

@@ -29,7 +29,7 @@ export const Footer = () => {
                   className="text-xs text-gray-500 hover:text-gray-600 transition-colors"
                 >
                   (docs)
-                </a>
+                </a>. This is a demo app - no real money is involved.
               </p>
             </div>
           </div>

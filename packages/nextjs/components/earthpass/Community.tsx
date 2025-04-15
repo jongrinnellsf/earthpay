@@ -99,7 +99,7 @@ export const Community: React.FC<CommunityProps> = ({
       {hasTokens ? (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 mb-8">
           <h3 className="font-bold text-lg mb-2 text-gray-700">Pay</h3>
-          <p className="text-gray-600 mb-6 text-sm">Send tokens to other EarthPass holders</p>
+          <p className="text-gray-600 mb-6 text-sm">Send tokens to other NFT holders</p>
           
           <div className="space-y-4">
             <div>
