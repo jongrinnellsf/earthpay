@@ -245,7 +245,7 @@ const Home: NextPage = () => {
   const handleMintTokens = async () => {
     if (!address || !tokenContractData?.address) {
       notification.error(
-        <span>The EarthToken contract has not been deployed yet. Please run 'yarn deploy' first to create your custom token.</span>
+        <span>The contract has not been deployed yet. Please run 'yarn deploy' first to create your custom token.</span>
       );
       return;
     }
@@ -353,6 +353,88 @@ const Home: NextPage = () => {
     }
   };
 
+  // State for storing user's ERC-20 token balances
+  const [userTokenBalances, setUserTokenBalances] = useState<TokenBalance[]>([]);
+  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+
+  // Function to fetch user's token balances using Alchemy Token API
+  const fetchUserTokenBalances = async () => {
+    if (!address) return;
+    
+    setIsLoadingTokens(true);
+    try {
+      // Initialize Alchemy SDK
+      const alchemyInstance = new Alchemy({
+        apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || DEFAULT_ALCHEMY_API_KEY,
+        network: Network.BASE_SEPOLIA,
+      });
+      
+      // Fetch token balances
+      const balancesResponse = await alchemyInstance.core.getTokenBalances(address);
+      
+      // Process and filter out zero balances
+      const nonZeroBalances = balancesResponse.tokenBalances.filter(
+        token => token.tokenBalance !== "0" && token.tokenBalance !== "0x0"
+      );
+      
+      // Fetch metadata for each token and create array of TokenBalance objects
+      const tokenDetailsPromises = nonZeroBalances.map(async token => {
+        try {
+          const metadata = await alchemyInstance.core.getTokenMetadata(token.contractAddress);
+          
+          // Calculate token balance in readable format
+          let formattedBalance = "0";
+          if (token.tokenBalance && metadata.decimals) {
+            const balance = parseInt(token.tokenBalance, 16);
+            formattedBalance = (balance / Math.pow(10, metadata.decimals)).toFixed(4);
+          }
+          
+          return {
+            contractAddress: token.contractAddress,
+            tokenBalance: formattedBalance,
+            name: metadata.name,
+            symbol: metadata.symbol,
+            logo: metadata.logo,
+            decimals: metadata.decimals,
+          };
+        } catch (error) {
+          console.error(`Error fetching metadata for token ${token.contractAddress}:`, error);
+          return {
+            contractAddress: token.contractAddress,
+            tokenBalance: token.tokenBalance,
+            name: null,
+            symbol: null,
+            logo: null,
+            decimals: null,
+          };
+        }
+      });
+      
+      const tokenDetails = await Promise.all(tokenDetailsPromises);
+      setUserTokenBalances(tokenDetails);
+    } catch (error) {
+      console.error("Error fetching token balances:", error);
+    } finally {
+      setIsLoadingTokens(false);
+    }
+  };
+
+  // Fetch token balances when address changes
+  useEffect(() => {
+    if (address && hasNFT) {
+      fetchUserTokenBalances();
+    }
+  }, [address, hasNFT]);
+
+  // Format balance with commas for thousands
+  const formatBalance = (balance: string): string => {
+    const num = parseFloat(balance);
+    return num.toLocaleString('en-US', { 
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   return (
     <>
       {/* Background with gradient and decorative elements */}
@@ -458,9 +540,11 @@ const Home: NextPage = () => {
                       ) : (
                         <>
                           {/* Balance Card */}
-                          <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-                            <div className="flex items-center justify-between mb-1">
-                              <p className="text-xl text-gray-600">Your balance</p>
+                          <div className="bg-white p-8 rounded-2xl shadow-md border border-gray-100">
+                            <div className="flex items-center justify-between mb-6">
+                              <p className="text-xl text-gray-600">
+                                {tokenName ? `Your ${tokenName} balance` : "Your balance"}
+                              </p>
                               <button 
                                 onClick={handleRefreshTokenBalance}
                                 className={`p-1.5 rounded-full transition-all ${isLoadingTokenBalance ? 'bg-indigo-50' : 'hover:bg-indigo-50'}`}
@@ -470,42 +554,20 @@ const Home: NextPage = () => {
                                 <ArrowPathIcon className={`h-5 w-5 text-indigo-600 ${isLoadingTokenBalance ? 'animate-spin' : ''}`} />
                               </button>
                             </div>
-                            <p className="text-6xl font-semibold text-gray-800 mb-8">${getTotalBalance()}</p>
-                            
-                            {/* Action Buttons */}
-                            <div className="flex justify-between gap-4">
-                              <button 
-                                className="flex-1 flex flex-col items-center justify-center p-4 bg-[#363FF9] text-white rounded-full shadow-lg disabled:opacity-50"
-                                onClick={handleMintTokens}
-                                disabled={isMinting || !hasNFT || !tokenContractData?.address}
-                              >
-                                {isMinting ? (
-                                  <div className="flex flex-col items-center justify-center">
-                                    <svg className="animate-spin w-8 h-8 mb-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <span className="text-xl">Depositing...</span>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M8 2.75C8 2.47386 7.77614 2.25 7.5 2.25C7.22386 2.25 7 2.47386 7 2.75V7H2.75C2.47386 7 2.25 7.22386 2.25 7.5C2.25 7.77614 2.47386 8 2.75 8H7V12.25C7 12.5261 7.22386 12.75 7.5 12.75C7.77614 12.75 8 12.5261 8 12.25V8H12.25C12.5261 8 12.75 7.77614 12.75 7.5C12.75 7.22386 12.5261 7 12.25 7H8V2.75Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
-                                    </svg>
-                                    <span className="mt-3 text-xl">Deposit Funds</span>
-                                  </>
-                                )}
-                              </button>
-                              
-                      <button 
-                                className="flex-1 flex flex-col items-center justify-center p-4 bg-[#363FF9] text-white rounded-full shadow-lg"
-                                onClick={() => setActiveTab('send')}
-                              >
-                                <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M1.20308 1.04312C1.00481 0.954998 0.772341 1.0048 0.627577 1.16641C0.482813 1.32802 0.458794 1.56455 0.568117 1.75196L3.92115 7.50002L0.568117 13.2481C0.458794 13.4355 0.482813 13.672 0.627577 13.8336C0.772341 13.9952 1.00481 14.045 1.20308 13.9569L14.7031 7.95693C14.8836 7.87668 15 7.69762 15 7.50002C15 7.30243 14.8836 7.12337 14.7031 7.04312L1.20308 1.04312ZM4.84553 7.10002L2.21234 2.586L13.2689 7.50002L2.21234 12.414L4.84552 7.90002H9C9.22092 7.90002 9.4 7.72094 9.4 7.50002C9.4 7.27911 9.22092 7.10002 9 7.10002H4.84553Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
-                                </svg>
-                                <span className="mt-3 text-xl">Send</span>
-                      </button>
+
+                            <div className="flex flex-col space-y-6">
+                              <div className="flex items-center">
+                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 via-purple-400 to-indigo-600 mr-4"></div>
+                                <div className="flex flex-col">
+                                  <span className="text-2xl font-medium text-gray-800">{tokenName || "Token"}</span>
+                                  <span className="text-gray-500">{tokenSymbol}</span>
+                                </div>
+                                <div className="ml-auto">
+                                  <p className="text-3xl font-bold text-gray-800">
+                                    {formatBalance(getTotalBalance())} {tokenSymbol}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                             
                             {!tokenContractData?.address && (
@@ -529,101 +591,94 @@ const Home: NextPage = () => {
                             )}
                           </div>
                           
-                          {/* Recent Activity Section */}
-                          {/* Commented out for now */}
-                          {/*
-                          <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-                            <h2 className="text-2xl text-gray-700 mb-6">Recent activity</h2>
-                            
-                            
-                            {hasNFT && tokenContractData?.address && (
-                              <div className="bg-white p-4 rounded-xl mb-6 border border-gray-200 shadow-sm">
-                                <div className="flex justify-between items-center mb-3">
-                                  <h3 className="text-lg font-semibold text-gray-800">Token Balance</h3>
-                                  <button 
-                                    onClick={handleRefreshTokenBalance}
-                                    className="text-gray-500 hover:text-gray-700"
-                                    disabled={isLoadingTokenBalance}
-                                  >
-                                    <svg 
-                                      className={`h-5 w-5 ${isLoadingTokenBalance ? 'animate-spin' : ''}`} 
-                                      xmlns="http://www.w3.org/2000/svg" 
-                                      fill="none" 
-                                      viewBox="0 0 24 24"
-                                    >
-                                      {isLoadingTokenBalance ? (
-                                        <>
-                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </>
-                                      ) : (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                      )}
-                          </svg>
-                                  </button>
+                          {/* Action Buttons - Moved outside the balance card */}
+                          <div className="flex justify-between gap-4 mt-6 mb-6">
+                            <button 
+                              className="flex-1 py-5 bg-[#363FF9] text-white rounded-full shadow-lg disabled:opacity-50 hover:bg-[#2C35DF] transition-colors"
+                              onClick={handleMintTokens}
+                              disabled={isMinting || !hasNFT || !tokenContractData?.address}
+                            >
+                              {isMinting ? (
+                                <div className="flex items-center justify-center">
+                                  <svg className="animate-spin w-6 h-6 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  <span className="text-xl">Depositing...</span>
                                 </div>
-                                
-                                <div className="flex items-center p-3 rounded-lg bg-indigo-50 border border-indigo-100">
-                                  <div className="flex-shrink-0 mr-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#363FF9] to-[#5498FF] flex items-center justify-center">
-                                    </div>
-                                  </div>
-                                  <div className="flex-grow">
-                                    <div className="font-medium text-gray-800">{tokenName || "Community Tokens"}</div>
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-xs text-gray-500">{tokenSymbol || "TOKEN"}</span>
-                                      <span className="text-sm text-indigo-600 font-medium">
-                                        {getTokenBalance()}
-                                      </span>
-                                    </div>
-                        </div>
-                      </div>
-                      
-                                <div className="mt-3 text-center">
-                                  <button 
-                                    className="text-indigo-600 text-sm font-medium hover:text-indigo-700"
-                                    onClick={() => setActiveTab('deposit')}
-                                  >
-                                    Deposit More {tokenName ? tokenName : "Tokens"}
-                                  </button>
+                              ) : (
+                                <div className="flex items-center justify-center">
+                                  <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                                    <path d="M8 2.75C8 2.47386 7.77614 2.25 7.5 2.25C7.22386 2.25 7 2.47386 7 2.75V7H2.75C2.47386 7 2.25 7.22386 2.25 7.5C2.25 7.77614 2.47386 8 2.75 8H7V12.25C7 12.5261 7.22386 12.75 7.5 12.75C7.77614 12.75 8 12.5261 8 12.25V8H12.25C12.5261 8 12.75 7.77614 12.75 7.5C12.75 7.22386 12.5261 7 12.25 7H8V2.75Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
+                                  </svg>
+                                  <span className="text-xl">Deposit Funds</span>
                                 </div>
+                              )}
+                            </button>
+                            
+                            <button 
+                              className="flex-1 py-5 bg-[#363FF9] text-white rounded-full shadow-lg hover:bg-[#2C35DF] transition-colors"
+                              onClick={() => setActiveTab('send')}
+                            >
+                              <div className="flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                                  <path d="M1.20308 1.04312C1.00481 0.954998 0.772341 1.0048 0.627577 1.16641C0.482813 1.32802 0.458794 1.56455 0.568117 1.75196L3.92115 7.50002L0.568117 13.2481C0.458794 13.4355 0.482813 13.672 0.627577 13.8336C0.772341 13.9952 1.00481 14.045 1.20308 13.9569L14.7031 7.95693C14.8836 7.87668 15 7.69762 15 7.50002C15 7.30243 14.8836 7.12337 14.7031 7.04312L1.20308 1.04312ZM4.84553 7.10002L2.21234 2.586L13.2689 7.50002L2.21234 12.414L4.84552 7.90002H9C9.22092 7.90002 9.4 7.72094 9.4 7.50002C9.4 7.27911 9.22092 7.10002 9 7.10002H4.84553Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-xl">Send</span>
                               </div>
-                            )}
-                            
-                            <div className="space-y-4">
-                              {recentActivity.map(activity => (
-                                <div key={activity.id} className="flex items-center justify-between py-3 border-b border-gray-100">
-                                  <div className="flex items-center">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
-                                      activity.type === 'receive' 
-                                        ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white' 
-                                        : 'bg-gradient-to-br from-[#363FF9] to-[#5498FF] text-white'
-                                    }`}>
-                                      <span className="text-xl">{activity.type === 'receive' ? '↓' : '↑'}</span>
-                                    </div>
-                                    <div>
-                                      <p className="font-medium">
-                                        {activity.type === 'receive' ? 'From' : 'To'} {activity.type === 'receive' ? activity.from : activity.to}
-                                      </p>
-                                      <p className="text-gray-500 text-sm">
-                                        {new Date(activity.timestamp).toLocaleDateString()}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <p className={`font-semibold ${activity.type === 'receive' ? 'text-green-600' : 'text-[#363FF9]'}`}>
-                                    {activity.type === 'receive' ? '+' : '-'} ${activity.amount}
-                                  </p>
-                                </div>
-                              ))}
+                            </button>
+                          </div>
+                          
+                          {/* ERC-20 Tokens Section - Only show if user has deployed their token */}
+                          {tokenContractData?.address && (
+                            <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                              <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl text-gray-700">Your ERC-20 Tokens</h2>
+                                <button 
+                                  onClick={fetchUserTokenBalances}
+                                  className={`p-1.5 rounded-full transition-all ${isLoadingTokens ? 'bg-indigo-50' : 'hover:bg-indigo-50'}`}
+                                  disabled={isLoadingTokens}
+                                  title="Refresh token balances"
+                                >
+                                  <ArrowPathIcon className={`h-5 w-5 text-indigo-600 ${isLoadingTokens ? 'animate-spin' : ''}`} />
+                                </button>
+                              </div>
                               
-                              {recentActivity.length === 0 && (
+                              {isLoadingTokens ? (
+                                <div className="flex justify-center py-8">
+                                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                                </div>
+                              ) : userTokenBalances.length > 0 ? (
+                                <div className="space-y-3">
+                                  {userTokenBalances.map((token, index) => (
+                                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                      <div className="flex items-center space-x-3">
+                                        {token.logo ? (
+                                          <img src={token.logo} alt={token.symbol || 'Token'} className="w-8 h-8 rounded-full" />
+                                        ) : (
+                                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 via-purple-400 to-indigo-600 flex items-center justify-center">
+                                            {/* Removed the token symbol letter */}
+                                          </div>
+                                        )}
+                                        <div>
+                                          <p className="font-medium">{token.name || 'Unknown Token'}</p>
+                                          <p className="text-xs text-gray-500">{token.symbol || 'Unknown'}</p>
+                                        </div>
+                                      </div>
+                                      <div className="font-medium">
+                                        {formatBalance(token.tokenBalance || '0')} {token.symbol}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
                                 <div className="text-center py-8 text-gray-500">
-                                  No activity to display yet
+                                  <p>No ERC-20 tokens found in your wallet</p>
+                                  <p className="text-sm mt-2">When others transfer tokens to you, they'll appear here</p>
                                 </div>
                               )}
                             </div>
-                          </div>
-                          */}
+                          )}
                         </>
                       )}
                     </div>
