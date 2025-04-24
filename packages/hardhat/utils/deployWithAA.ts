@@ -36,7 +36,12 @@ export async function deployWithAA(
       data,
       value: 0n,
     },
+    overrides: {
+      maxFeePerGas: ethers.parseUnits("100", "gwei"), // Hardcoded higher gas price to avoid "replacement underpriced" error
+      maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"), // Add priority fee override
+    }
   });
+
 
   if (!userOpResponse?.hash) {
     throw new Error(`Failed to get userOpHash. Response: ${JSON.stringify(userOpResponse)}`);
