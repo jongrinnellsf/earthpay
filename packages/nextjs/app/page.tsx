@@ -661,11 +661,11 @@ const Home: NextPage = () => {
                                           </div>
                                         )}
                                         <div>
-                                          <p className="font-medium">{token.name || 'Unknown Token'}</p>
+                                          <p className="font-medium text-gray-800">{token.name || 'Unknown Token'}</p>
                                           <p className="text-xs text-gray-500">{token.symbol || 'Unknown'}</p>
                                         </div>
                                       </div>
-                                      <div className="font-medium">
+                                      <div className="font-medium text-gray-800">
                                         {formatBalance(token.tokenBalance || '0')} {token.symbol}
                                       </div>
                                     </div>
